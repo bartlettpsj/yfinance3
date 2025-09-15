@@ -18,9 +18,6 @@ const exchange = "NASDAQ";
 const tickers = await tickerDb.collection.find({ exchange }).map((s: any) => s.symbol).toArray();
 const results = [];
 
-let streakSymbol = '';
-let streakMax = 0;
-
 for (const symbol of tickers) {
     // For each symbol get the history from the historyDb - get the weekly prices - the price at close on a Friday 
 
@@ -63,15 +60,7 @@ for (const symbol of tickers) {
 
     console.log(`Symbol: ${symbol}, Max Winning Streak: ${maxStreak}. increases: ${increases}, decreases: ${decreases}, unchanged: ${unchanged}`);
     results.push({ symbol, maxStreak, increases, decreases, unchanged });
-
-    // Get the winners
-    if (maxStreak > streakMax) {
-        streakMax = maxStreak;
-        streakSymbol = symbol;
-    }
 }
-
-console.log(`Stock with the longest winning streak: ${streakSymbol} (${streakMax} weeks)`);
 
 const sorted = _.sortBy(results, r => -r.maxStreak);
 
