@@ -15,8 +15,8 @@ async function getHistory(symbol: string) {
 
         // Define options: 1 year of daily candles
         const queryOptions = {
-            period1: "2020-09-06", // 5 year ago (yyyy-mm-dd)
-            period2: "2025-09-06", // day
+            period1: new Date(new Date().setDate(new Date().getDate() - 14)), // 2 weeks ago
+            period2: new Date(), // day
             interval: "1d" as Interval // daily data
         };
 
@@ -38,8 +38,9 @@ async function saveHistory(symbol: string, history: HistoricalReturn, exchange: 
         const ops = history.map((doc: HistoricalItem) => ({ updateOne: { filter: { symbol, date: doc.date }, update: { $set: { ...doc, symbol, exchange } }, upsert: true } }));
         if (ops.length > 0) {
             const result = await collection.bulkWrite(ops);
-            //   console.log(`Bulk write result for ${symbol}:`, result);
+            // console.log(`Bulk write result for ${symbol}:`, result);
         }
+
 
         // for (const doc of history) {
 

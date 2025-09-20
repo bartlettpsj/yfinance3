@@ -34,7 +34,7 @@ async function main() {
     console.log(`✅ Loaded ${nyseSymbols.length} NYSE symbols`);
     console.log(`✅ Loaded ${amexSymbols.length} AMEX symbols`);
     const allSymbols = [...nasdaqSymbols, ...nyseSymbols, ...amexSymbols];
-    await saveSymbols(all, Symbols);
+    await saveSymbols(allSymbols);
     console.log(`✅ Saved ${allSymbols.length} symbols`);
 }
 main().catch(err => {
