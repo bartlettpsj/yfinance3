@@ -1,13 +1,25 @@
 
-import { MongoClient } from "mongodb";
+import {Collection, MongoClient} from "mongodb";
 
 const uri = "mongodb://localhost:27017"; // Replace with your MongoDB connection string
+
+export interface TheDb {
+    database: Database;
+    collection: Collection;
+}
 
 export class Database {
     client: MongoClient;
 
     constructor() {
         this.client = new MongoClient(uri);
+    }
+
+    static async initDb(collectionName: string) {
+        const theDb: TheDb = { database: new Database(), collection: null as any };
+        const db = await theDb.database.connect();
+        theDb.collection = db.collection(collectionName);
+        return theDb;
     }
    
     async connect() {
@@ -20,25 +32,3 @@ export class Database {
     }
 }
 
-async function run() {
-  const database = new Database();
-
-  try {
-    const db = await database.connect();
-    const collection = db.collection("tickers");
-
-    // Example document to insert
-    const doc = { ticker: "AAPL", name: "Apple Inc.", exchange: "NASDAQ" };
-    const result = await collection.insertOne(doc);
-    console.log(`New document inserted with _id: ${result.insertedId}`);
-
-    // Query the document
-    const query = { ticker: "AAPL" };
-    const item = await collection.findOne(query);
-    console.log("Found document:", item);
-  } finally {
-    await database.close();
-  }
-}
-
-// run().catch(console.dir);   

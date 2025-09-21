@@ -4,16 +4,9 @@
 import { Database } from "./database.js";
 import _ from "lodash";
 
-async function initDb(collectionName: string) {
-    const theDb = { database: new Database(), collection: null as any };
-    const db = await theDb.database.connect();
-    theDb.collection = db.collection(collectionName);
-    return theDb;
-}
-
 // Initialize the history database connection once
-const historyDb = await initDb("history");
-const tickerDb = await initDb("tickers");
+const historyDb = await Database.initDb("history");
+const tickerDb = await Database.initDb("tickers");
 const exchange = "NASDAQ";
 const tickers = await tickerDb.collection.find({ exchange }).map((s: any) => s.symbol).toArray();
 const results = [];
