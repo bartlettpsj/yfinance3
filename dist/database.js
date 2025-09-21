@@ -1,9 +1,5 @@
 import { Collection, Db, MongoClient } from "mongodb";
 const uri = "mongodb://localhost:27017"; // Replace with your MongoDB connection string
-// export interface TheDb {
-//     database: Database;
-//     collection: Collection;
-// }
 // Single database with a single collection
 export class Database {
     connected = false;

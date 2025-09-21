@@ -4,33 +4,17 @@
 import { Database } from "./database.js";
 import _ from "lodash";
 import minimist from "minimist";
+import {getCommandLine} from "./command-line.js";
 
 const historyDb = await Database.initDb("history");
 const tickerDb = await Database.initDb("tickers");
 
-// const exchange = "NASDAQ";
-// const tickers = await tickerDb.collection.find({ exchange }).map((s: any) => s.symbol).toArray();
-// const results = [];
-
-// Get command line parameters:
-// --symbol=xxx (default all)
-// --interval=1d|1w|1m
-// --start=dd/mm/yy (default end - 1 year)
-// --end=dd/mm/yy (default today)
-// --exchange=xxx (default NASDAQ)
-
 // Parse command line arguments
-const argv = minimist(process.argv.slice(2));
-
-const symbolArg = argv.symbol; // string or undefined
-const interval = argv.interval || "1d";
-const end = argv.end ? new Date(argv.end) : new Date();
-const start = argv.start ? new Date(argv.start)     : new Date(new Date(end).setFullYear(end.getFullYear() - 1));
-const exchange = argv.exchange || "NASDAQ";
+const {symbol, end, start, exchange} = getCommandLine();
 const results = [];
 
-const tickers = symbolArg
-    ? [symbolArg]
+const tickers = symbol
+    ? [symbol]
     : await tickerDb.collection.find({ exchange }).map((s: any) => s.symbol).toArray();
 
 for (const symbol of tickers) {
@@ -90,7 +74,6 @@ for (const symbol of tickers) {
     results.push({ symbol, maxStreak, increases, decreases, unchanged, bigIncrease, bigDecrease, bigDiff: bigIncrease-bigDecrease, positivity: increases === 0 ? 0 : (increases / (increases + decreases)) * 100 });
 }
 
-// const sorted = _.sortBy(results, r => -r.maxStreak);
 const filtered =  _.filter(results, r => r.increases + r.decreases > 100);
 const sorted = _.sortBy(filtered, r => -r.bigDiff);
 
