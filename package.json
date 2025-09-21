@@ -13,6 +13,7 @@
   "dependencies": {
     "@types/lodash": "^4.17.20",
     "lodash": "^4.17.21",
+    "minimist": "^1.2.8",
     "mongodb": "^6.19.0",
     "yahoo-finance2": "^3.10.0"
   },

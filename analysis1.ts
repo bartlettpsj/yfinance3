@@ -62,8 +62,8 @@ console.table(sorted.slice(0, 100));
 
 
 try {
-    await historyDb.database.close();
-    await tickerDb.database.close();
+    await historyDb.close();
+    await tickerDb.close();
     console.log("Closed database connections");
 } catch (err) {
     console.error("Error closing database connection:", err);

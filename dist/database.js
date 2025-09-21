@@ -1,35 +1,41 @@
-import { MongoClient } from "mongodb";
+import { Collection, Db, MongoClient } from "mongodb";
 const uri = "mongodb://localhost:27017"; // Replace with your MongoDB connection string
+// export interface TheDb {
+//     database: Database;
+//     collection: Collection;
+// }
+// Single database with a single collection
 export class Database {
+    connected = false;
     client;
+    db;
+    collection;
     constructor() {
         this.client = new MongoClient(uri);
     }
-    async connect() {
-        await this.client.connect();
-        return this.client.db("finance");
+    async setCollection(collectionName) {
+        await this.connect();
+        this.collection = this.db.collection(collectionName);
+        return this.collection;
+    }
+    static async initDb(collectionName, dbName = "finance") {
+        const database = new Database();
+        await database.setCollection(collectionName);
+        return database;
+    }
+    async connect(dbName = "finance") {
+        if (!this.connected) {
+            await this.client.connect();
+            this.connected = true;
+        }
+        this.db = this.client.db(dbName);
+        return this.db;
     }
     async close() {
-        await this.client.close();
+        if (this.connected) {
+            await this.client.close();
+            this.connected = false;
+        }
     }
 }
-async function run() {
-    const database = new Database();
-    try {
-        const db = await database.connect();
-        const collection = db.collection("tickers");
-        // Example document to insert
-        const doc = { ticker: "AAPL", name: "Apple Inc.", exchange: "NASDAQ" };
-        const result = await collection.insertOne(doc);
-        console.log(`New document inserted with _id: ${result.insertedId}`);
-        // Query the document
-        const query = { ticker: "AAPL" };
-        const item = await collection.findOne(query);
-        console.log("Found document:", item);
-    }
-    finally {
-        await database.close();
-    }
-}
-// run().catch(console.dir);   
 //# sourceMappingURL=database.js.map

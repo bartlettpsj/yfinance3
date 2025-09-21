@@ -2,15 +2,9 @@
 // I.e. grew each week (definition of grow need to be defined)
 import { Database } from "./database.js";
 import _ from "lodash";
-async function initDb(collectionName) {
-    const theDb = { database: new Database(), collection: null };
-    const db = await theDb.database.connect();
-    theDb.collection = db.collection(collectionName);
-    return theDb;
-}
 // Initialize the history database connection once
-const historyDb = await initDb("history");
-const tickerDb = await initDb("tickers");
+const historyDb = await Database.initDb("history");
+const tickerDb = await Database.initDb("tickers");
 const exchange = "NASDAQ";
 const tickers = await tickerDb.collection.find({ exchange }).map((s) => s.symbol).toArray();
 const results = [];
@@ -18,7 +12,7 @@ for (const symbol of tickers) {
     // For each symbol get the history from the historyDb - get the weekly prices - the price at close on a Friday 
     const prices = await historyDb.collection.find({
         symbol,
-        $expr: { $eq: [{ $dayOfWeek: "$date" }, 2] },
+        $expr: { $eq: [{ $dayOfWeek: "$date" }, 6] },
         date: { $gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) }
     })
         .sort({ date: 1 }).toArray();
@@ -53,12 +47,12 @@ for (const symbol of tickers) {
     console.log(`Symbol: ${symbol}, Max Winning Streak: ${maxStreak}. increases: ${increases}, decreases: ${decreases}, unchanged: ${unchanged}`);
     results.push({ symbol, maxStreak, increases, decreases, unchanged });
 }
-const sorted = _.sortBy(results, r => -r.maxStreak);
+const sorted = _.sortBy(results, r => -r.increases);
 // top 10
 console.table(sorted.slice(0, 100));
 try {
-    await historyDb.database.close();
-    await tickerDb.database.close();
+    await historyDb.close();
+    await tickerDb.close();
     console.log("Closed database connections");
 }
 catch (err) {
