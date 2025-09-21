@@ -3,21 +3,19 @@
 import {Database} from "./database.js";
 import {getCommandLine} from "./command-line.js";
 
-
 // Initialize the history database connection once
 const historyDb = await Database.initDb("history");
 const tickerDb = await Database.initDb("tickers");
 
-const {symbol, exchange} = getCommandLine();
+const {start, end, symbol, exchange} = getCommandLine(14);
 
 const tickers = await tickerDb.collection.find({ exchange }).map((s: any) => s.symbol).toArray();
-const results = [];
 
 async function getHistory(symbol: string) {
     return await historyDb.collection.find({
         symbol,
-        $expr: {$eq: [{$dayOfWeek: "$date"}, 6  ]},
-        date: {$gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1))}
+        // $expr: {$eq: [{$dayOfWeek: "$date"}, 6  ]},
+        date: {$gte: start, $lte: end}
     })
         .sort({date: 1}).toArray();
 }
