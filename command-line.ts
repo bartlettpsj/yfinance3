@@ -13,16 +13,18 @@ export interface CommandLineArgs {
     start: Date;
     end: Date;
     exchange?: string;
+    dow: number; // 1 (Sunday) → 7 (Saturday). JS=// 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 }
 
-export function getCommandLine(startDefaultAdjustDays: number=365): CommandLineArgs {
+export function getCommandLine(startDefaultAdjustDays: number=365, symbolDefault: string=""): CommandLineArgs {
     const argv = minimist(process.argv.slice(2));
 
-    const symbol = argv.symbol as string || "AAPL";
+    const symbol = argv.symbol as string || symbolDefault;
     const interval = (argv.interval as string | undefined) || "1d";
     const end = argv.end ? new Date(argv.end) : new Date();
     const start = argv.start ? new Date(argv.start) : new Date(end.getTime() - startDefaultAdjustDays * 24 * 60 * 60 * 1000);
     const exchange = (argv.exchange as string | undefined) || "NASDAQ";
+    const dow = (argv.dow as number) || 0;
 
-    return { symbol, interval, start, end, exchange };
+    return { symbol, interval, start, end, exchange, dow };
 }

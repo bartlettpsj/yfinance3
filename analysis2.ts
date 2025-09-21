@@ -10,7 +10,7 @@ const historyDb = await Database.initDb("history");
 const tickerDb = await Database.initDb("tickers");
 
 // Parse command line arguments
-const {symbol, end, start, exchange} = getCommandLine();
+const {symbol, end, start, exchange} = getCommandLine(180);
 const results = [];
 
 const tickers = symbol
@@ -26,7 +26,7 @@ for (const symbol of tickers) {
         // date: { $gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) }
         date: { $gte: start, $lte: end }
     })
-        .sort({ date: 1 }).toArray();
+    .sort({ date: 1 }).toArray();
 
     // Find the winning streaks - i.e. the number of consecutive number of days where the closing price was higher than the previous day
     let maxStreak = 0;
