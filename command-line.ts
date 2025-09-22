@@ -6,6 +6,7 @@ import minimist from "minimist";
 // --start=dd/mm/yy (default end - 1 year)
 // --end=dd/mm/yy (default today)
 // --exchange=xxx (default NASDAQ)
+// --dow=(1 thru 7) (default 0 = nothing)
 
 export interface CommandLineArgs {
     symbol?: string;

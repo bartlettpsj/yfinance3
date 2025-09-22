@@ -71,11 +71,11 @@ for (const symbol of tickers) {
     }
 
     console.log(`Symbol: ${symbol}, Max Winning Streak: ${maxStreak}. increases: ${increases}, decreases: ${decreases}, unchanged: ${unchanged}`);
-    results.push({ symbol, maxStreak, increases, decreases, unchanged, bigIncrease, bigDecrease, bigDiff: bigIncrease-bigDecrease, positivity: increases === 0 ? 0 : (increases / (increases + decreases)) * 100 });
+    results.push({ symbol, maxStreak, increases, decreases, unchanged, velocity: increases-decreases, bigIncrease, bigDecrease, bigDiff: bigIncrease-bigDecrease, positivity: increases === 0 ? 0 : (increases / (increases + decreases)) * 100 });
 }
 
 const filtered =  _.filter(results, r => r.increases + r.decreases > 100);
-const sorted = _.sortBy(filtered, r => -r.bigDiff);
+const sorted = _.sortBy(filtered, r => -r.velocity);
 
 // top 100
 console.table(sorted.slice(0, 100));
