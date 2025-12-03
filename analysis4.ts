@@ -1,4 +1,4 @@
-// Intend to get all NASDAQ stocks and then see if there are certain dow that are more positive and those that are negative
+// Test a theory to see if there are certain days of the week best to buy and sell next day?  I believe sell end of Mon and buy Tuesday
 
 import { Database } from "./database.js";
 import _ from "lodash";
@@ -20,6 +20,16 @@ type DateChange = { increases: number, decreases: number, unchanged: number, vel
 const dateChangeMap: Map<string, DateChange> = new Map();
 const dayChange: DateChange[] = new Array(7);
 
+// Track the 2 dimensional array of changes
+// e.g. [0][1] = sunday to monday
+// Positive equals more increases, negative equals decreases, 0 equals unchanged
+const changes: number[][] = new Array(7);
+for (let i = 0; i < 7; i++) {
+    changes[i] = new Array(7).fill(0);
+}
+
+// Processing a symbol an d in date order, but warning there could be gaps in the data, so do not process the day where there is more than a week since last one
+
 for (const symbol of tickers) {
     // For each symbol get the history from the historyDb - get the weekly prices - the price at close on a Friday 
 
@@ -31,6 +41,7 @@ for (const symbol of tickers) {
     .sort({ date: 1 }).toArray();
 
     let previousPrice = 0;
+    let previousDate: Date;
 
     for (const price of prices) {
         // Initial case
