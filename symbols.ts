@@ -1,5 +1,5 @@
 
-import yahooFinance from "yahoo-finance2";
+// import yahooFinance from "yahoo-finance2";
 import { Database } from "./database.js";
 import _ from "lodash";
 

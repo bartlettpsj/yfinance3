@@ -1,0 +1,71 @@
+import YahooFinance from "yahoo-finance2";
+const yahooFinance = new YahooFinance();
+import { Database } from "./database.js";
+import {getCommandLine} from "./command-line.js";
+
+type ChartReturn = Awaited<ReturnType<typeof yahooFinance.chart>>;
+// type ChartItem = ChartReturn & { symbol?: string; exchange?: string };
+
+// Parse command line arguments
+const {symbol, end: period2, start: period1, interval} = getCommandLine();
+
+// Initialize the history database connection once
+const database = await Database.initDb("history");
+
+
+// Fetch chart data for symbol for a specific date range and interval
+async function fetchChartData(symbol: string, period1: Date, period2: Date, interval: string) {
+    try {
+        const data = await yahooFinance.chart(symbol, { period1, period2, interval });
+        console.log("Chart Data:", data);
+        return data
+    } catch (error) {
+        console.error("Error fetching chart data:", error);
+    }
+}
+
+// Save chart data to the database
+async function saveChartData(symbol: string, chartData: ChartReturn, exchange: string = "NASDAQ", database : Database) {
+    const interval = chartData.meta?.dataGranularity;
+
+    const ops = chartData.quotes.map(doc => ({
+        
+        updateOne: {
+            filter: {symbol, date: doc.date, interval},
+            update: {$set: {...doc, symbol, exchange, interval}},
+            upsert: true
+        }
+    }));
+
+    if (ops.length > 0) {
+        const result = await database.collection.bulkWrite(ops);
+        console.log(`Bulk write result for ${symbol}:`, result);
+    }
+    
+
+}   
+
+if (!symbol) {
+    console.error("No symbol provided. Use --symbol=XXX to specify a symbol.");
+    process.exit(1);
+}
+
+const chartData = await fetchChartData(symbol!, period1, period2, interval!);
+if (chartData) {
+    await saveChartData(symbol!, chartData, "NASDAQ", database);
+    console.log(`Saved chart data for ${symbol}`);
+} else {
+    console.log(`No chart data fetched for ${symbol}`);
+}   
+
+
+// Close the database
+try {
+    await database.close();
+    console.log("Closed history database connection");
+} catch (err) {
+    console.error("Error closing history database connection:", err);
+}
+
+
+

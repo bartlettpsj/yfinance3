@@ -25,6 +25,20 @@ export class Database {
         await database.setCollection(collectionName);
         return database;
     }
+
+    static async checkCreateIndex(collection: Collection, indexSpec: any, options: any={}) {
+        const indexes = await collection.indexes();
+        const indexExists = indexes.some(index => {
+            return JSON.stringify(index.key) === JSON.stringify(indexSpec);
+        });
+
+        if (!indexExists) {
+            await collection.createIndex(indexSpec, options);
+            console.log(`Created index on ${collection.collectionName}:`, indexSpec);
+        } else {
+            console.log(`Index already exists on ${collection.collectionName}:`, indexSpec); 
+        }
+    }
    
     async connect(dbName: string="finance" ) {
         if (!this.connected) {

@@ -7,10 +7,10 @@ type HistoricalReturn = Awaited<ReturnType<typeof yahooFinance.historical>>;
 type HistoricalItem = HistoricalReturn & { symbol?: string; exchange?: string };
 
 // Parse command line arguments
-const {end, start} = getCommandLine(14);
+const {end, start, interval} = getCommandLine();
 
 // Get history for a symbol and store in MongoDB
-async function getHistory(symbol: string) {
+async function getHistory(symbol: string, interval: string) {
     try {
         type Interval = "1mo" | "1d" | "1wk";
 
@@ -18,11 +18,14 @@ async function getHistory(symbol: string) {
         const queryOptions = {
             period1: start, // new Date(new Date().setDate(new Date().getDate() - 14)), // 2 weeks ago
             period2: end, // new Date(), // day
-            interval: "1d" as Interval // daily data
+            interval: interval as Interval
         };
 
         // Fetch historical prices
-        return await yahooFinance.historical(symbol, queryOptions);
+
+        // Add interval to each returned item       
+        return (await yahooFinance.historical(symbol, queryOptions)).map(item => ({ ...item, interval }));
+        // return await yahooFinance.historical(symbol, queryOptions);
     } catch (error) {
         console.error("Error fetching Apple history:", error);
     }
@@ -31,15 +34,15 @@ async function getHistory(symbol: string) {
 async function saveHistory(symbol: string, history: HistoricalReturn, exchange: string = "NASDAQ", database : Database) {
     const ops = history.map((doc: HistoricalItem) => ({
         updateOne: {
-            filter: {symbol, date: doc.date},
-            update: {$set: {...doc, symbol, exchange}},
+            filter: {symbol, date: doc.date, interval: doc.interval},
+            update: {$set: {...doc, symbol, exchange, interval: doc.interval}},
             upsert: true
         }
     }));
 
     if (ops.length > 0) {
         const result = await database.collection.bulkWrite(ops);
-        console.log(`Bulk write result for ${symbol}:`, result);
+        // console.log(`Bulk write result for ${symbol}:`, result);
     }
 }
 
@@ -60,8 +63,11 @@ console.log(`Loaded ${symbols.length} symbols`);
 // Initialize the history database connection once
 const database = await Database.initDb("history");
 
+// Ensure index on (symbol, date)
+await Database.checkCreateIndex(database.collection, { symbol: 1, date: 1, interval: 1 }, { unique: true });
+
 for (const {symbol, exchange} of symbols) {
-    const history = await getHistory(symbol);
+    const history = await getHistory(symbol, interval);
     if (history) {
         await saveHistory(symbol, history, exchange, database);
         console.log(`Saved ${history.length} history entries for ${symbol} - exchange ${exchange}`);
