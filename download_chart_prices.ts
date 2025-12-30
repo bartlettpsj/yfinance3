@@ -9,9 +9,13 @@ type ChartReturn = Awaited<ReturnType<typeof yahooFinance.chart>>;
 // Parse command line arguments
 const {symbol, end: period2, start: period1, interval} = getCommandLine();
 
+if (!symbol) {
+    console.error("No symbol provided. Use --symbol=XXX to specify a symbol.");
+    process.exit(1);
+}
+
 // Initialize the history database connection once
 const database = await Database.initDb("history");
-
 
 // Fetch chart data for symbol for a specific date range and interval
 async function fetchChartData(symbol: string, period1: Date, period2: Date, interval: string) {
@@ -45,10 +49,6 @@ async function saveChartData(symbol: string, chartData: ChartReturn, exchange: s
 
 }   
 
-if (!symbol) {
-    console.error("No symbol provided. Use --symbol=XXX to specify a symbol.");
-    process.exit(1);
-}
 
 const chartData = await fetchChartData(symbol!, period1, period2, interval!);
 if (chartData) {

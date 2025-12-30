@@ -35,8 +35,9 @@ for (const symbol of tickers) {
 
     // Get prices for every day for the last year
     const prices = await historyDb.collection.find({
-        symbol,
-        date: { $gte: start, $lte: end }
+        symbol,        
+        date: { $gte: start, $lte: end },
+        interval: "1d"        
     })
     .sort({ date: 1 }).toArray();
 
