@@ -10,7 +10,7 @@ import minimist from "minimist";
 
 export interface CommandLineArgs {
     symbol?: string;
-    interval?: string;
+    interval: string;
     start: Date;
     end: Date;
     exchange?: string;

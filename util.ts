@@ -33,5 +33,3 @@ export function tableDeep (data: any) {
     console.table(flattened);
 }
 
-
-// export default {}

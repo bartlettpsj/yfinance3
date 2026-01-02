@@ -18,7 +18,7 @@ async function downloadSymbols(url: string, exchange: string) {
 }
 
 async function saveSymbols(symbols: SymbolItem[]) {
-    const database = new Database();
+    const database =  new Database();
 
     try {
         const db = await database.connect();

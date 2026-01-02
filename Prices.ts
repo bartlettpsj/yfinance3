@@ -27,5 +27,4 @@ try {
     console.log("Closed database connections");
 } catch (err) {
     console.error("Error closing database connection:", err);
-}
-
+} 

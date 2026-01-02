@@ -1,6 +1,7 @@
 import YahooFinance from "yahoo-finance2";
 import {Database} from "./database.js";
 import {getCommandLine} from "./command-line.js";
+import { getAllSymbols } from "./price_util.js";
 
 const yahooFinance = new YahooFinance();
 type HistoricalReturn = Awaited<ReturnType<typeof yahooFinance.historical>>;
@@ -25,9 +26,8 @@ async function getHistory(symbol: string, interval: string) {
 
         // Add interval to each returned item       
         return (await yahooFinance.historical(symbol, queryOptions)).map(item => ({ ...item, interval }));
-        // return await yahooFinance.historical(symbol, queryOptions);
     } catch (error) {
-        console.error("Error fetching Apple history:", error);
+        console.error(`Error fetching [${symbol}] history:`, error);
     }
 }
 
@@ -46,18 +46,18 @@ async function saveHistory(symbol: string, history: HistoricalReturn, exchange: 
     }
 }
 
-async function getSymbols() {
-    const theDb = await Database.initDb("tickers");
+// async function getAllSymbols() {
+//     const theDb = await Database.initDb("tickers");
 
-    try {
-        const symbols = await theDb.collection.find({}).toArray();
-        return symbols.map(s => ({symbol: s.symbol, exchange: s.exchange}));
-    } finally {
-        await theDb.close();
-    }
-}
+//     try {
+//         const symbols = await theDb.collection.find({}).toArray();
+//         return symbols.map(s => ({symbol: s.symbol, exchange: s.exchange}));
+//     } finally {
+//         await theDb.close();
+//     }
+// }
 
-const symbols = await getSymbols();
+const symbols = await getAllSymbols();
 console.log(`Loaded ${symbols.length} symbols`);
 
 // Initialize the history database connection once

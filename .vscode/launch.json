@@ -4,16 +4,18 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Download Prices",
-      "args": ["--symbol=VOO", "--start=2024-01-01",  "--end=2025-12-31", "--interval=1h"],
+      "name": "Launch Download Chart Prices",
+      "args": ["--start=2025-12-01",  "--end=2025-12-31", "--interval=1h"],
+      // "--symbol=SYM"
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/download_chart_prices.ts",
       "outFiles": ["${workspaceFolder}/**/*.js"]
     },
-        {
+    {
       "type": "node",
       "request": "launch",
       "name": "Launch Analysis4",
@@ -21,7 +23,24 @@
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/analysis4.ts",
       "outFiles": ["${workspaceFolder}/**/*.js"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Download Symbols",
+      "args": [],
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/download_symbols.ts",
+      "outFiles": ["${workspaceFolder}/**/*.js"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Download All Symbol Prices",
+      "args": ["--start=2024-01-01",  "--end=2025-12-31", "--interval=1d"],
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/download_all_symbol_prices.ts",
+      "outFiles": ["${workspaceFolder}/**/*.js"]
     }
-\
   ]
 }
