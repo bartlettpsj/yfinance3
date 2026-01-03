@@ -2,7 +2,7 @@ import YahooFinance from "yahoo-finance2";
 const yahooFinance = new YahooFinance();
 import { Database } from "./database.js";
 import {getCommandLine} from "./command-line.js";
-import { getAllSymbols } from "./price_util.js";
+import { getAllSymbols, fetchChartData } from "./price_util.js";
 
 type ChartReturn = any;
 // type ChartItem = ChartReturn & { symbol?: string; exchange?: string };
@@ -18,16 +18,7 @@ const {symbol, end: period2, start: period1, interval} = getCommandLine();
 // Initialize the history database connection once
 const database = await Database.initDb("history");
 
-// Fetch chart data for symbol for a specific date range and interval
-async function fetchChartData(symbol: string, period1: Date, period2: Date, interval: string) {
-    try {
-        const data = await yahooFinance.chart(symbol, { period1, period2, interval: interval as any });
-        // console.log("Chart Data:", data);
-        return data
-    } catch (error) {
-        console.error("Error fetching chart data:", error);
-    }
-}
+
 
 // Save chart data to the database
 async function saveChartData(symbol: string, chartData: ChartReturn, exchange: string = "NASDAQ", database : Database) {

@@ -40,6 +40,15 @@
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/download_all_symbol_prices.ts",
       "outFiles": ["${workspaceFolder}/**/*.js"]
-    }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run current TS file",
+      // "runtimeArgs": ["-r", "ts-node/register"],
+      // "args": ["${file}"],
+      "program": "${workspaceFolder}/${fileBasename}"
+      // "cwd": "${workspaceFolder}/dist"
+    }    
   ]
 }

@@ -31,3 +31,13 @@ export async function getHistory(symbol: string, interval: string, start: Date, 
         console.error(`Error fetching [${symbol}] history:`, error);
     }
 }
+// Fetch chart data for symbol for a specific date range and interval
+export async function fetchChartData(symbol: string, period1: Date, period2: Date, interval: string) {
+    try {
+        const data = await yahooFinance.chart(symbol, { period1, period2, interval: interval as any });
+        // console.log("Chart Data:", data);
+        return data
+    } catch (error) {
+        console.error("Error fetching chart data:", error);
+    }
+}

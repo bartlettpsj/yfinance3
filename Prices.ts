@@ -8,7 +8,7 @@ const historyDb = await Database.initDb("history");
 
 const {start, end, symbol, exchange, dow} = getCommandLine(14, "AAPL");
 
-async function getHistory(symbol: string) {
+async function getHistoryFromDow(symbol: string) {
     return await historyDb.collection.find({
         symbol,
         ...(dow && { $expr: {$eq: [{$dayOfWeek: "$date"}, dow  ]}}),
@@ -17,10 +17,10 @@ async function getHistory(symbol: string) {
         .sort({date: 1}).toArray();
 }
 
-const prices = await getHistory(symbol!);
+const prices = await getHistoryFromDow(symbol!);
 
 console.log(`Symbol: ${symbol} Count: ${prices.length} `);
-prices.forEach(p => console.log(`${symbol} ${p.date.toLocaleDateString('en-US', { weekday: 'short', month: '2-digit', day: '2-digit', year: '2-digit' })} ${p.close.toFixed(2)}`));
+prices.forEach(p => console.log(`${symbol} ${p.date.toLocaleDateString('en-US', { weekday: 'short', month: '2-digit', day: '2-digit', year: '2-digit' })} ${p.close?.toFixed(2)}`));
 
 try {
     await historyDb.close();
