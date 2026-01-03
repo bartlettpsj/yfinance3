@@ -1,7 +1,7 @@
 import YahooFinance from "yahoo-finance2";
 import {Database} from "./database.js";
 import {getCommandLine} from "./command-line.js";
-import { getAllSymbols } from "./price_util.js";
+import { getAllSymbols, getHistory } from "./price_util.js";
 
 const yahooFinance = new YahooFinance();
 type HistoricalReturn = Awaited<ReturnType<typeof yahooFinance.historical>>;
@@ -9,27 +9,6 @@ type HistoricalItem = HistoricalReturn & { symbol?: string; exchange?: string };
 
 // Parse command line arguments
 const {end, start, interval} = getCommandLine();
-
-// Get history for a symbol and store in MongoDB
-async function getHistory(symbol: string, interval: string) {
-    try {
-        type Interval = "1mo" | "1d" | "1wk";
-
-        // Define options: 1 year of daily candles
-        const queryOptions = {
-            period1: start, // new Date(new Date().setDate(new Date().getDate() - 14)), // 2 weeks ago
-            period2: end, // new Date(), // day
-            interval: interval as Interval
-        };
-
-        // Fetch historical prices
-
-        // Add interval to each returned item       
-        return (await yahooFinance.historical(symbol, queryOptions)).map(item => ({ ...item, interval }));
-    } catch (error) {
-        console.error(`Error fetching [${symbol}] history:`, error);
-    }
-}
 
 async function saveHistory(symbol: string, history: HistoricalReturn, exchange: string = "NASDAQ", database : Database) {
     const ops = history.map((doc: HistoricalItem) => ({
@@ -46,17 +25,6 @@ async function saveHistory(symbol: string, history: HistoricalReturn, exchange: 
     }
 }
 
-// async function getAllSymbols() {
-//     const theDb = await Database.initDb("tickers");
-
-//     try {
-//         const symbols = await theDb.collection.find({}).toArray();
-//         return symbols.map(s => ({symbol: s.symbol, exchange: s.exchange}));
-//     } finally {
-//         await theDb.close();
-//     }
-// }
-
 const symbols = await getAllSymbols();
 console.log(`Loaded ${symbols.length} symbols`);
 
@@ -67,7 +35,7 @@ const database = await Database.initDb("history");
 await Database.checkCreateIndex(database.collection, { symbol: 1, date: 1, interval: 1 }, { unique: true });
 
 for (const {symbol, exchange} of symbols) {
-    const history = await getHistory(symbol, interval);
+    const history = await getHistory(symbol, interval, start, end);
     if (history) {
         await saveHistory(symbol, history, exchange, database);
         console.log(`Saved ${history.length} history entries for ${symbol} - exchange ${exchange}`);

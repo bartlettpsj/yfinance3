@@ -9,8 +9,7 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Download Chart Prices",
-      "args": ["--start=2025-12-01",  "--end=2025-12-31", "--interval=1h"],
-      // "--symbol=SYM"
+      "args": ["--symbol=SYM", "--start=2025-12-25",  "--end=2025-12-31", "--interval=1h"],
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/download_chart_prices.ts",
       "outFiles": ["${workspaceFolder}/**/*.js"]

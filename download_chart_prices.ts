@@ -69,6 +69,3 @@ try {
 } catch (err) {
     console.error("Error closing history database connection:", err);
 }
-
-
-
